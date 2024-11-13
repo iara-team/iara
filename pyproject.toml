@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "iara"
+version = "0.0.1"
+description = "A relational database for bioaccumulation data"
+authors = ["Pedro Sader Azevedo <pedro.saderazevedo@pm.me>"]
+license = "GPL-3.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+sqlmodel = "^0.0.22"
+streamlit = "^1.40.1"
+psycopg2-binary = "^2.9.10"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.10.0"
+isort = "^5.13.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
