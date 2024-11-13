@@ -1,7 +1,6 @@
 from sqlalchemy.exc import IntegrityError
-from sqlmodel import Session, text
 
-from iara.database import engine, init_db
+from iara.database import init_db
 from iara.populate import populate_all
 from iara.query import (
     query_event_affected_organisms,
