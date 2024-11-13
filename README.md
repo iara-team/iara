@@ -33,7 +33,7 @@ poetry install
 ```bash
 podman pull docker.io/library/postgres:latest
 ```
-6. Crete a podman container with the following command line:
+6. Create a podman container with the following command line:
 
 ```bash
 podman run -d \
@@ -44,4 +44,10 @@ podman run -d \
   -v "$HOME/Documents/repos/iara/database" \
   -p 5432:5432 \
   postgres:latest
+```
+
+7. Then, run the script that populates the database
+
+```bash
+python iara/populate.py
 ```
