@@ -33,5 +33,6 @@ engine_kwargs = {
 DATABASE_URL = URL.create(**url_kwargs)
 engine = create_engine(DATABASE_URL, **engine_kwargs)
 
+
 def init_db():
     SQLModel.metadata.create_all(engine)
