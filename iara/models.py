@@ -1,16 +1,21 @@
 from datetime import datetime
-from sqlmodel import Field, SQLModel, Relationship
+from sqlmodel import Field, SQLModel, Relationship, UniqueConstraint
 from typing import Optional, List
 
 
 class Evento(SQLModel, table=True):
+    __table_args__ = (UniqueConstraint("epicentro_lat", "epicentro_lon", "descricao"),)
+
     id: int | None = Field(default=None, primary_key=True)
     data: datetime
     epicentro_lat: float
     epicentro_lon: float
+    descricao: str
 
 
 class CorpoDagua(SQLModel, table=True):
+    __table_args__ = (UniqueConstraint("nome", "tipo"),)
+
     id: int | None = Field(default=None, primary_key=True)
     nome: str
     tipo: str
@@ -22,11 +27,15 @@ class Fluxo(SQLModel, table=True):
 
 
 class TipoPoluente(SQLModel, table=True):
+    __table_args__ = (UniqueConstraint("nome"),)
+
     id: int | None = Field(default=None, primary_key=True)
     nome: str
 
 
 class Poluente(SQLModel, table=True):
+    __table_args__ = (UniqueConstraint("nome"),)
+
     id: int | None = Field(default=None, primary_key=True)
     nome: str
     dl50: float | None = None
@@ -40,6 +49,8 @@ class Emissao(SQLModel, table=True):
 
 
 class Organismo(SQLModel, table=True):
+    __table_args__ = (UniqueConstraint("nome_popular"), UniqueConstraint("especie"),)
+
     id: int | None = Field(default=None, primary_key=True)
     nome_popular: str
     reino: str | None = None
