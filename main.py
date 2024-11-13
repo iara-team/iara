@@ -33,7 +33,7 @@ def main():
     print(query_event_pollutants(1))
     print(query_directly_affected_organisms(7, 5))
     print(query_event_affected_organisms(2))
-    print(query_event_affects_humans(3))
+    print(query_event_affects_humans(4))
 
 
 if __name__ == "__main__":

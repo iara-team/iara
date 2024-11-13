@@ -11,7 +11,8 @@ def populate_evento():
                 INSERT INTO evento (data, epicentro_lat, epicentro_lon, descricao) VALUES
                 ('2015-11-05', 20.3739, 43.4163, 'Rompimento de barragem de rejeitos de mineração de ferro'),
                 ('2020-04-30', -1.217199, -61.748173, 'Escoamento de agrotóxicos utilizados numa grande propriedade rural'),
-                ('2023-07-18', 35.613651, -133.543420, 'Naufrágio de um navio de importação de bens de consumo');
+                ('2023-07-18', 35.613651, -133.543420, 'Naufrágio de um navio de importação de bens de consumo'),
+                ('2024-02-27', -20.030595, -39.933147, 'Explosão de uma plataforma de extração de petróleo');
                 """
             )  # type: ignore
         )
@@ -45,7 +46,8 @@ def populate_tipopoluente():
                 INSERT INTO tipopoluente (nome) VALUES
                 ('Agroquímico'),
                 ('Microplástico'),
-                ('Metal Pesado');
+                ('Metal Pesado'),
+                ('Petroquímico');
                 """
             )  # type: ignore
         )
@@ -63,7 +65,9 @@ def populate_organismo():
                 ('Capivara', 'Animalia', 'Chordata', 'Mammalia', 'Rodentia', 'Hydrochoeridae', 'Hydrochoerus', 'Hydrochoerus hydrochaeris'),
                 ('Humano', 'Animalia', 'Chordata', 'Mammalia', 'Primata', 'Hominidae', 'Homo', 'Homo sapiens'),
                 ('Espirogira', 'Plantae', 'Chlorophyta', 'Zygnematophyceae', 'Zygnematales', 'Zygnemataceae', 'Spirogyra', 'Spirogyra sp.'),
-                ('Sardinha', 'Animalia', 'Chordata', 'Actinopterygii', 'Clupeiformes', 'Clupeidae', 'Sardinella', 'Sardinella brasiliensis');
+                ('Sardinha', 'Animalia', 'Chordata', 'Actinopterygii', 'Clupeiformes', 'Clupeidae', 'Sardinella', 'Sardinella brasiliensis'),
+                ('Búzio-espinhoso', 'Animalia', 'Mollusca', 'Gastropoda', 'Neogastropoda', 'Muricidae', 'Murex', 'Murex pecten'),
+                ('Moreia', 'Animalia', 'Chordata', 'Actinopterygii', 'Anguilliformes', 'Muraenidae', 'Gymnothorax', 'Gymnothorax funebris');
                 """
             )  # type: ignore
         )
@@ -83,7 +87,10 @@ def populate_poluente():
                 ('ABS', NULL, 2),
                 ('PA', NULL, 2),
                 ('Metil mercúrio', 11.9, 3),
-                ('Chumbo', 5610.0, 3);
+                ('Chumbo', 5610.0, 3),
+                ('Anthraceno', NULL, 4),
+                ('Tetraceno', NULL, 4),
+                ('Pentaceno', NULL, 4);
                 """
             )  # type: ignore
         )
@@ -114,14 +121,17 @@ def populate_emissao():
             text(
                 """
                 INSERT INTO emissao (evento_id, poluente_id, corpodagua_id) VALUES
-                (1, 7, 4),  -- Emissão de Metil mercúrio no Rio Catiringa
-                (1, 8, 4),  -- Emissão de Chumbo no Rio Catiringa
-                (2, 1, 5),  -- Emissão de DDT no Rio Indaiá
-                (3, 2, 7),  -- Emissão de PET no Oceano
-                (3, 3, 7),  -- Emissão de LDPE no Oceano
-                (3, 4, 7),  -- Emissão de HDPE no Oceano
-                (3, 5, 7),  -- Emissão de ABS no Oceano
-                (3, 6, 7);  -- Emissão de PA no Oceano
+                (1, 07, 4),  -- Emissão de Metil mercúrio no Rio Catiringa
+                (1, 08, 4),  -- Emissão de Chumbo no Rio Catiringa
+                (2, 01, 5),  -- Emissão de DDT no Rio Indaiá
+                (3, 02, 7),  -- Emissão de PET no Oceano
+                (3, 03, 7),  -- Emissão de LDPE no Oceano
+                (3, 04, 7),  -- Emissão de HDPE no Oceano
+                (3, 05, 7),  -- Emissão de ABS no Oceano
+                (3, 06, 7),  -- Emissão de PA no Oceano
+                (4, 09, 7),  -- Emissão de Anthraceno no Oceano
+                (4, 10, 7),  -- Emissão de Tetraceno no Oceano
+                (4, 11, 7);  -- Emissão de Pentaceno no Oceano
                 """
             )  # type: ignore
         )
@@ -178,7 +188,11 @@ def populate_compatibilidade():
                 (8, 3),  -- Compatibilidade de Chumbo com Capivara
                 (8, 4),  -- Compatibilidade de Chumbo com Humano
                 (8, 5),  -- Compatibilidade de Chumbo com Espirogira
-                (8, 6);  -- Compatibilidade de Chumbo com Sardinha
+                (8, 6),  -- Compatibilidade de Chumbo com Sardinha
+
+                (9,  7),  -- Compatibilidade de Anthraceno com Búzio-espinhoso
+                (10, 7),  -- Compatibilidade de Tetraceno com Búzio-espinhoso
+                (11, 7);  -- Compatibilidade de Pentaceno com Búzio-espinhoso
                 """
             )  # type: ignore
         )
@@ -196,7 +210,8 @@ def populate_predacao():
                 (3, 2),  -- Capivara é presa de Jacaré-açu
                 (1, 4),  -- Tilápia é presa de Humano
                 (6, 4),  -- Sardinha é presa de Humano
-                (2, 4);  -- Jacaré-açu é presa de Humano
+                (2, 4),  -- Jacaré-açu é presa de Humano
+                (7, 8);  -- Búzio-espinhoso é presa de Moreia
                 """
             )  # type: ignore
         )
@@ -228,7 +243,9 @@ def populate_habitat():
                 (5, 5),  -- Espirogira vive no Rio Indaiá
                 (5, 6),  -- Espirogira vive no Riacho do Junco
 
-                (6, 7);  -- Sardinha vive no Oceano
+                (6, 7),  -- Sardinha vive no Oceano
+                (7, 7),  -- Búzio-espinhoso vive no Oceano
+                (8, 7);  -- Moreia vive no Oceano
                 """
             )  # type: ignore
         )

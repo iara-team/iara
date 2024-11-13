@@ -76,16 +76,14 @@ def query_flow_affected_waters(corpodagua_id):
                 """
                 WITH RECURSIVE fluxo_agua AS (
                     SELECT
-                        origem_id,
-                        destino_id,
+                        cd.id AS origem_id,
+                        cd.id AS destino_id,
                         cd.nome,
                         cd.tipo,
-                        1 as distancia_fluxo
-                    FROM fluxo f
-                    JOIN corpodagua cd ON f.destino_id = cd.id
-                    WHERE origem_id = :corpodagua_id
+                        1 AS distancia_fluxo
+                    FROM corpodagua cd
+                    WHERE cd.id = :corpodagua_id
                     UNION
-
                     SELECT
                         fa.origem_id,
                         f.destino_id,
