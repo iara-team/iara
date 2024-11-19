@@ -49,5 +49,5 @@ podman run -d \
 7. Then, run the script that populates the database
 
 ```bash
-python iara/populate.py
+python main.py
 ```
