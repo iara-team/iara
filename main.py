@@ -6,6 +6,7 @@ from iara.query import (
     query_event_affected_organisms,
     query_event_affected_waters,
     query_event_affects_humans,
+    query_waters_inhabited_by_humans,
     query_event_pollutants,
     query_flow_affected_waters,
     query_directly_affected_organisms,
@@ -33,6 +34,7 @@ def main():
     print(query_directly_affected_organisms(7, 5))
     print(query_event_affected_organisms(2))
     print(query_event_affects_humans(4))
+    print(query_waters_inhabited_by_humans()) 
 
 
 if __name__ == "__main__":

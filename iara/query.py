@@ -1,4 +1,6 @@
-from sqlmodel import Session, text
+from sqlmodel import Session, select, text
+
+from iara.models import CorpoDagua, Evento, Habitat
 
 from .database import engine
 
@@ -146,13 +148,18 @@ def query_event_affected_waters(evento_id):
         result = data.all()
         return result
 
+def query_waters_inhabited_by_humans():
+    with Session(engine) as session:
+        statement = select(CorpoDagua.id).join(Habitat).where(Habitat.organismo_id == 4)
+        result = session.exec(statement).all()
+        return result
 
 def query_event_pollutants(evento_id):
     with Session(engine) as session:
         data = session.exec(
             text(
                 """
-                SELECT DISTINCT p.id, p.nome, p.dl50, tp.nome as tipo_poluente
+                SELECT DISTINCT p.nome, p.dl50, tp.nome as tipo_poluente
                 FROM emissao em
                 JOIN poluente p ON em.poluente_id = p.id
                 JOIN tipopoluente tp ON p.tipo_poluente_id = tp.id
@@ -218,3 +225,14 @@ def query_event_affects_humans(evento_id):
         if organism_common_name == "Humano":
             return True
     return False
+
+def query_all_events():
+    with Session(engine) as session:
+        statement = select(Evento)
+        events = session.exec(statement).all()
+        return events
+
+def query_event_by_id(event_id):
+    with Session(engine) as session:
+        evento = session.get(Evento, event_id)
+        return evento

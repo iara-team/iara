@@ -1,27 +1,28 @@
 from enum import unique
-from typing import Sequence
+from typing import TYPE_CHECKING, Sequence
 from sqlmodel import Session, select
 import streamlit as st
 import folium
 from streamlit_folium import st_folium
+import pandas as pd
 
 
-# fmt: off
-from iara.query import query_event_affected_organisms, query_event_affected_waters
-from iara.models import Evento
-from iara.database import engine
-# fmt: on
+from iara.query import (
+    query_all_events,
+    query_event_affected_organisms,
+    query_event_affected_waters,
+    query_event_affects_humans,
+    query_event_by_id,
+    query_event_pollutants,
+    query_waters_inhabited_by_humans,
+)
 
-events: Sequence[Evento]
-with Session(engine) as session:
-    statement = select(Evento)
-    affected_waters = session.exec(statement)
-    events = affected_waters.all()
+events = query_all_events()
 
 @st.cache_data
 def create_map():
     # Create the folium map
-    m = folium.Map(location=[20, 0], zoom_start=2)
+    m = folium.Map(location=[-12, -50], zoom_start=4)
 
     # Add points to the map
     for event in events:
@@ -30,13 +31,17 @@ def create_map():
         id = event.id
         folium.Marker(
             location=[lat, lon],
-            popup=f"Evento: {id}<br>Lat: {lat}<br>Lng: {lon}",
-            tooltip=f"Evento: {id}"
+            popup=f"Evento {id}",
+            tooltip=f"Evento {id}"
         ).add_to(m)
     return m
 
 # Load the cached map
-st.write("### Interactive Map with Clickable Points")
+st.write("# Sistema de Monitoramento Iara 🧜🏾‍♀️")
+
+st.write("## Mapa de Eventos de Bioacumulação")
+st.write("**Clique em um ponto do mapa para visualizar detalhes do evento**")
+
 m = create_map()
 map_data = st_folium(m, width=700, height=500, returned_objects=["last_object_clicked"])
 
@@ -50,46 +55,103 @@ if map_data and map_data.get("last_object_clicked"):
         None
     )
 
-    with Session(engine) as session:
-        evento = session.get(Evento, event_id)
-
+    # Get data for event
+    evento = query_event_by_id(event_id)
     if evento is None:
         raise Exception("Unexpected None value")
 
-    st.header(f"Evento: {event_id}")
-    st.write("### Detalhes")
+    # Get data for emitted pollutants
+    emitted_pollutants = query_event_pollutants(event_id)
+    columns = ["Nome", "DL50 (mg/mg)", "Categoria"]
+    df_pol = pd.DataFrame(emitted_pollutants, columns=columns) # type: ignore
+
+    # Get data for contaminated waters
+    contaminated_waters = query_event_affected_waters(event_id)
+    waters_name_to_pollutant = {}
+    for cw in contaminated_waters:
+        water_name = cw[1]
+        if water_name not in waters_name_to_pollutant:
+            waters_name_to_pollutant[water_name] = []
+
+        pollutant_name = cw[-2]
+        pollutant_type = cw[-1]
+        waters_name_to_pollutant[water_name].append(
+            f"{pollutant_name} ({pollutant_type})"
+        )
+
+    # Get data for affected organisms
+    affected_organisms = query_event_affected_organisms(event_id)
+    affected_organisms = [ao[1:] for ao in affected_organisms]
+    columns = ["Nome", "Espécie", "Nível trófico"]
+    df_org = pd.DataFrame(affected_organisms, columns=columns) # type: ignore
+
+    # Get data for waters inhabited by humans
+    waters_with_humans = query_waters_inhabited_by_humans()
+    contaminated_waters_ids = [cw[0] for cw in contaminated_waters]
+    waters_with_humans_affected: bool = False
+    for wh in waters_with_humans:
+        if wh in contaminated_waters_ids:
+            waters_with_humans_affected = True
+            break
+
+    # Were humans affected?
+    humans_affected: bool = query_event_affects_humans(event_id)
+
+    # Display event header
+    st.write(f"## Evento {event_id}")
+    st.write(f"**Data:** {evento.data.strftime('%d/%m/%Y')}")
+    st.write(f"**Epicentro:** {lat} x {lon}")
     st.write(evento.descricao)
-    st.write(f"**Coordenadas:** {lat} x {lon}")
 
-    affected_waters = query_event_affected_waters(event_id)
-
-
-    st.subheader("Corpos d'água afetados")
+    # Display summary dashboard
     with st.container():
-        unique_affected_waters = set()
-        unique_pollutants = set()
-        for aw in affected_waters:
-            # Get waters name
-            water_name = aw[1]
-            unique_affected_waters.add(water_name)
-
-            # Get pollutant name
-            pollutant = aw[-2]
-            unique_pollutants.add(pollutant)
-
-            # Get pollutant type
-            pollutant_type = aw[-1]
-
-            # Write to page
-            st.write(f"{water_name}: {pollutant} ({pollutant_type})")
-
-        # Nested columns within container
-        st.divider()
         col1, col2 = st.columns(2)
         with col1:
-            st.metric("Número de corpos d'água afetados", len(unique_affected_waters))
+            if humans_affected:
+                st.error("Este evento resultou/resultará em bioacumulação humana", icon="🚨")
+            else:
+                st.info("Este evento não resultou/resultará em bioacumulação humana", icon="ℹ️")
         with col2:
-            st.metric("Número de poluente emitidos", len(unique_pollutants))
+            if waters_with_humans_affected:
+                st.error("Este evento afetou/afetará corpos d'água com populações humanas", icon="🚨")
+            else:
+                st.info("Este evento não afetou/afetará corpos d'água com populações humanas", icon="ℹ️")
+    st.divider()
 
-else:
-    st.write("Click on a point on the map to view details.")
+    # Display data for emitted pollutants
+    st.write("### Poluentes emitidos")
+    with st.container():
+        st.dataframe(df_pol)
+
+    # Display data for affected organisms
+    st.write("### Organismos afetados")
+    with st.container():
+        st.dataframe(df_org)
+
+    # Display data for contaminated waters
+    st.write("### Corpos d'água contaminados")
+    with st.container():
+        for waters_name, pollutants in waters_name_to_pollutant.items():
+            st.write(f"- **{waters_name}**: {", ".join(pollutants)}")
+
+    # Display summary dashboard
+    st.divider()
+    with st.container():
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric(
+                "Número de poluente emitidos",
+                len(df_pol),
+            )
+        with col2:
+            st.metric(
+                "Número de organismos afetados",
+                len(df_org),
+            )
+        with col3:
+            st.metric(
+                "Número de corpos d'água contaminados",
+                len(waters_name_to_pollutant),
+            )
+    st.divider()
+
