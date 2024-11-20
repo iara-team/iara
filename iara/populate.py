@@ -11,7 +11,7 @@ def populate_evento():
                 INSERT INTO evento (data, epicentro_lat, epicentro_lon, descricao) VALUES
                 ('2015-11-05', -20.3739, -43.4163, 'Rompimento de barragem de rejeitos de mineração de ferro'),
                 ('2020-04-30', -1.217199, -61.748173, 'Escoamento de agrotóxicos utilizados numa grande propriedade rural'),
-                ('2023-07-18', 35.613651, -133.543420, 'Naufrágio de um navio de importação de bens de consumo'),
+                ('2023-07-18', -25.667850, -48.416705, 'Naufrágio de um navio de importação de bens de consumo'),
                 ('2024-02-27', -20.030595, -39.933147, 'Explosão de uma plataforma de extração de petróleo');
                 """
             )  # type: ignore
