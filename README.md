@@ -51,3 +51,9 @@ podman run -d \
 ```bash
 python main.py
 ```
+
+8. Finally, run the visualization application
+
+```bash
+streamlit run visualize.py
+```
