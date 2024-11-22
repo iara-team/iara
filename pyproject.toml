@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "iara"
-version = "0.0.1"
+version = "0.0.2"
 description = "A relational database for bioaccumulation data"
 authors = ["Pedro Sader Azevedo <pedro.saderazevedo@pm.me>"]
 license = "GPL-3.0"
@@ -11,6 +11,8 @@ python = "^3.12"
 sqlmodel = "^0.0.22"
 streamlit = "^1.40.1"
 psycopg2-binary = "^2.9.10"
+folium = "^0.18.0"
+streamlit-folium = "^0.23.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
