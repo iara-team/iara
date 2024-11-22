@@ -7,7 +7,7 @@ A relational database for bioaccumulation data
 1. Clone this repository and enter its directory
 
 ```bash
-git clone https://github.com/pesader/iara && cd iara
+git clone https://github.com/iara-team/iara && cd iara
 ```
 
 2. Create a python virtual environment and source it
